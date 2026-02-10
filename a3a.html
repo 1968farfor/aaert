@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي منظف الهواء الذكي - النسخة النهائية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
+        }
+
+        :root {
+            --primary: #1a5fb4;
+            --secondary: #26a269;
+            --danger: #c01c28;
+            --warning: #f5a623;
+            --success: #2ec27e;
+            --dark: #1e1e1e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        /* الشريط الجانبي */
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            border-right: 5px solid var(--primary);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .logo h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-menu {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .nav-item {
+            margin-bottom: 15px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        .nav-icon {
+            margin-left: 15px;
+            font-size: 1.2rem;
+            width: 24px;
+        }
+
+        .system-status {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* المحتوى الرئيسي */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid var(--secondary);
+        }
+
+        .header h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+
+        .time-display {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .sensor-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sensor-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sensor-unit {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .sensor-status {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .good { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .moderate { background: #fff3cd; color: #856404; border: 2px solid #ffeaa7; }
+        .poor { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+        .hazardous { background: #721c24; color: white; border: 2px solid #5a151b; }
+
+        /* الشريط الجانبي الأيمن */
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--warning);
+        }
+
+        .control-title {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), #2d7fd6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #0d4a9e, #1a5fb4);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, var(--secondary), #3bb579);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #1e8a57, #26a269);
+            transform: translateY(-3px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger), #d93b45);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(to right, #a51c2c, #c01c28);
+            transform: translateY(-3px);
+        }
+
+        .btn-warning {
+            background: linear-gradient(to right, var(--warning), #f7b955);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(to right, #e69500, #f5a623);
+            transform: translateY(-3px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .mode-selector {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            color: var(--primary);
+        }
+
+        .alerts-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--danger);
+            flex-grow: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alerts-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-top: 15px;
+            max-height: 400px;
+        }
+
+        .alert-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-right: 4px solid var(--danger);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-icon {
+            color: var(--danger);
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .alert-good {
+            border-right-color: var(--success);
+        }
+
+        .alert-good .alert-icon {
+            color: var(--success);
+        }
+
+        .alert-warning {
+            border-right-color: var(--warning);
+        }
+
+        .alert-warning .alert-icon {
+            color: var(--warning);
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* الرسوم البيانية */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .history-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .history-btn {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .history-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* إحصائيات الأداء */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* مؤشرات الأداء */
+        .indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .indicator-bar {
+            flex-grow: 1;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+
+        .indicator-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .indicator-value {
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* التنبيهات */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s ease;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-icon {
+            font-size: 2rem;
+            color: var(--danger);
+        }
+
+        .notification-success .notification-icon {
+            color: var(--success);
+        }
+
+        .notification-warning .notification-icon {
+            color: var(--warning);
+        }
+
+        /* تنبيه الطوارئ */
+        .emergency-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to right, var(--danger), #e5534b);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 9999;
+            animation: emergencyPulse 1s infinite;
+            display: none;
+        }
+
+        @keyframes emergencyPulse {
+            0%, 100% { background: linear-gradient(to right, var(--danger), #e5534b); }
+            50% { background: linear-gradient(to right, #e5534b, var(--danger)); }
+        }
+
+        /* تأثيرات تلوث الهواء */
+        .air-pollution-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(192, 28, 40, 0.05);
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .air-pollution-effect.show {
+            opacity: 1;
+        }
+
+        /* تأثيرات التحذير */
+        .warning-pulse {
+            animation: warningPulse 2s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 166, 35, 0); }
+        }
+
+        .danger-pulse {
+            animation: dangerPulse 1s infinite;
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(192, 28, 40, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(192, 28, 40, 0); }
+        }
+
+        /* مستوى الصحة */
+        .health-meter {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .health-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--success);
+            margin: 10px 0;
+        }
+
+        .health-status {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .health-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .health-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* نصائح التحسين */
+        .tips-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .tip-item {
+            margin-bottom: 15px;
+            padding-right: 10px;
+            border-right: 3px solid var(--success);
+            display: flex;
+            align-items: center;
+        }
+
+        .tip-item.warning {
+            border-right-color: var(--warning);
+        }
+
+        .tip-icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+
+        .tip-good .tip-icon {
+            color: var(--success);
+        }
+
+        .tip-warning .tip-icon {
+            color: var(--warning);
+        }
+
+        .tip-danger .tip-icon {
+            color: var(--danger);
+        }
+
+        /* تقرير الكفاءة */
+        .efficiency-report {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .efficiency-item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .efficiency-item:last-child {
+            border-bottom: none;
+        }
+
+        /* مؤشر التدهور */
+        .degradation-indicator {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="emergency-alert" id="emergencyAlert">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span id="emergencyMessage">تحذير: جودة الهواء خطيرة! الرجاء اتخاذ الإجراءات اللازمة.</span>
+    <button onclick="dismissEmergency()" style="margin-right: 20px; background: white; color: #c01c28; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">إغلاق</button>
+</div>
+
+<div class="notification" id="notification">
+    <div class="notification-icon">
+        <i class="fas fa-bell"></i>
+    </div>
+    <div>
+        <div class="notification-title" id="notificationTitle">تنبيه</div>
+        <div class="notification-message" id="notificationMessage">رسالة التنبيه تظهر هنا</div>
+    </div>
+    <button onclick="dismissNotification()" style="background: none; border: none; color: #666; cursor: pointer; margin-right: auto;">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<!-- تأثير تلوث الهواء -->
+<div class="air-pollution-effect" id="airPollutionEffect"></div>
+
+<div class="container">
+    
+    <!-- الشريط الجانبي الأيسر -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-wind"></i>
+            </div>
+            <h1>منظف الهواء الذكي</h1>
+            <p style="color: var(--gray); font-size: 0.9rem;">المحاكي النهائي</p>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt nav-icon"></i>
+                    <span>لوحة التحكم</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-page="analytics">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    <span>التحليلات</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="system-status">
+            <h3 style="margin-bottom: 15px; color: var(--dark); font-size: 1.1rem;">حالة النظام</h3>
+            <div class="status-item">
+                <span>الحالة العامة:</span>
+                <span id="systemOverallStatus" style="color: var(--success); font-weight: 600;">جيدة</span>
+            </div>
+            <div class="status-item">
+                <span>وقت التشغيل:</span>
+                <span id="uptime">00:00:00</span>
+            </div>
+            <div class="status-item">
+                <span>كفاءة المرشح:</span>
+                <span id="filterEfficiency">95%</span>
+            </div>
+            <div class="status-item">
+                <span>معدل التدهور:</span>
+                <span id="degradationRate">0.2%</span>
+            </div>
+            <div class="status-item">
+                <span>مستوى الصحة:</span>
+                <span id="healthLevelSidebar">92%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <div class="header">
+            <h2 id="pageTitle">لوحة التحكم الرئيسية</h2>
+            <div class="time-display" id="currentTime">--:--:--</div>
+        </div>
+
+        <div class="dashboard" id="dashboardContent">
+            <!-- بطاقة أجهزة الاستشعار -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">أجهزة الاستشعار</h3>
+                    <i class="fas fa-microchip card-icon"></i>
+                </div>
+                <div class="sensor-grid">
+                    <div class="sensor-card" id="pm25Card">
+                        <div style="color: var(--primary); font-weight: 600;">PM2.5</div>
+                        <div class="sensor-value" id="pm25Value">35</div>
+                        <div class="sensor-unit">ميكروجرام/م³</div>
+                        <div class="sensor-status good" id="pm25Status">جيدة</div>
+                    </div>
+                    <div class="sensor-card" id="co2Card">
+                        <div style="color: var(--primary); font-weight: 600;">ثاني أكسيد الكربون</div>
+                        <div class="sensor-value" id="co2Value">480</div>
+                        <div class="sensor-unit">جزء في المليون</div>
+                        <div class="sensor-status good" id="co2Status">جيدة</div>
+                    </div>
+                    <div class="sensor-card" id="vocCard">
+                        <div style="color: var(--primary); font-weight: 600;">مركبات عضوية</div>
+                        <div class="sensor-value" id="vocValue">0.8</div>
+                        <div class="sensor-unit">مليجرام/م³</div>
+                        <div class="sensor-status good" id="vocStatus">منخفضة</div>
+                    </div>
+                    <div class="sensor-card" id="tempCard">
+                        <div style="color: var(--primary); font-weight: 600;">درجة الحرارة</div>
+                        <div class="sensor-value" id="tempValue">24</div>
+                        <div class="sensor-unit">°C</div>
+                        <div class="sensor-status good" id="tempStatus">مثالية</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة جودة الهواء العام -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">جودة الهواء والصحة</h3>
+                    <i class="fas fa-heartbeat card-icon"></i>
+                </div>
+                
+                <!-- مستوى الصحة -->
+                <div class="health-meter">
+                    <div class="health-value" id="healthValue">92%</div>
+                    <div class="health-status" id="healthStatus">صحة ممتازة</div>
+                    <div class="health-bar">
+                        <div class="health-fill" id="healthBar" style="width: 92%; background: linear-gradient(to right, var(--success), var(--secondary));"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--gray);">
+                        <span>ضعيف</span>
+                        <span>متوسط</span>
+                        <span>جيد</span>
+                        <span>ممتاز</span>
+                    </div>
+                </div>
+                
+                <!-- تأثيرات النظام -->
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>تأثير النظام:</span>
+                        <span id="systemImpact" style="font-weight: 600; color: var(--success);">إيجابي (-15% تلوث)</span>
+                    </div>
+                    <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                        <div id="systemImpactBar" style="height: 100%; width: 85%; background: linear-gradient(to right, var(--success), var(--secondary));"></div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">معدل التدهور</div>
+                        <div class="stat-value" id="degradationStat">0.2%</div>
+                        <div class="stat-label">كل دقيقة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">مستوى الخطورة</div>
+                        <div class="stat-value" id="dangerLevel">منخفض</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">التنقية المطلوبة</div>
+                        <div class="stat-value" id="requiredPurification">75%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الرسوم البيانية المحسنة -->
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-header">
+                    <h3 class="card-title">تحليل تطور جودة الهواء</h3>
+                    <i class="fas fa-chart-line card-icon"></i>
+                </div>
+                <div class="chart-container">
+                    <canvas id="airQualityChart"></canvas>
+                </div>
+                <div class="history-selector">
+                    <button class="history-btn active" data-hours="1">ساعة</button>
+                    <button class="history-btn" data-hours="6">6 ساعات</button>
+                    <button class="history-btn" data-hours="24">يوم</button>
+                    <button class="history-btn" data-hours="168">أسبوع</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- محتوى التحليلات -->
+        <div class="dashboard" id="analyticsContent" style="display: none;">
+            <!-- سيتم تحميله ديناميكياً -->
+        </div>
+    </div>
+
+    <!-- الشريط الجانبي الأيمن -->
+    <div class="right-sidebar">
+        <div class="control-panel">
+            <h3 class="control-title">لوحة التحكم</h3>
+            
+            <div class="mode-selector">
+                <div class="mode-btn active" data-mode="auto">تلقائي</div>
+                <div class="mode-btn" data-mode="manual">يدوي</div>
+                <div class="mode-btn" data-mode="sleep">نوم</div>
+                <div class="mode-btn" data-mode="turbo">تيربو</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="fanOnBtn">
+                    <i class="fas fa-fan"></i>
+                    <span>تشغيل المراوح</span>
+                </button>
+                <button class="btn btn-danger" id="fanOffBtn">
+                    <i class="fas fa-fan"></i>
+                    <span>إيقاف المراوح</span>
+                </button>
+                <button class="btn btn-secondary" id="purifyBtn">
+                    <i class="fas fa-wind"></i>
+                    <span>بدء التنقية</span>
+                </button>
+                <button class="btn btn-warning" id="ventilateBtn">
+                    <i class="fas fa-window-maximize"></i>
+                    <span>التهوية</span>
+                </button>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>سرعة المراوح</span>
+                    <span id="fanSpeedValue">50%</span>
+                </div>
+                <input type="range" id="fanSpeedSlider" min="0" max="100" value="50" style="width: 100%;">
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>شدة التنقية</span>
+                    <span id="purificationValue">متوسطة</span>
+                </div>
+                <input type="range" id="purificationSlider" min="0" max="100" value="50" style="width: 100%;">
+            </div>
+
+            <div class="indicators">
+                <h4 style="margin-bottom: 15px; color: var(--dark);">مؤشرات الأداء</h4>
+                <div class="indicator">
+                    <span>مستوى الصحة</span>
+                    <div class="indicator-bar">
+                        <div class="indicator-fill" id="healthIndicator" style="width: 92%; background: var(--success);"></div>
+                    </div>
+                    <span class="indicator-value" id="healthIndicatorValue">92%</span>
+                </div>
+                <div class="indicator">
+                    <span>كفاءة المرشح</span>
+                    <div class="indicator-bar">
+                        <div class="indicator-fill" id="filterIndicator" style="width: 95%; background: var(--success);"></div>
+                    </div>
+                    <span class="indicator-value" id="filterValue">95%</span>
+                </div>
+                <div class="indicator">
+                    <span>استهلاك الطاقة</span>
+                    <div class="indicator-bar">
+                        <div class="indicator-fill" id="powerIndicator" style="width: 45%; background: var(--warning);"></div>
+                    </div>
+                    <span class="indicator-value" id="powerValue">245 واط</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="alerts-panel">
+            <h3 class="control-title">مركز الإشعارات</h3>
+            <div class="alerts-list" id="alertsList">
+                <!-- التنبيهات ستظهر هنا ديناميكيًا -->
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn" style="width: 100%; background: #f8f9fa; color: var(--dark);" onclick="clearAlerts()">
+                    <i class="fas fa-trash"></i>
+                    <span>مسح جميع الإشعارات</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== المتغيرات العامة ====================
+let systemState = {
+    mode: 'auto',
+    fanSpeed: 50,
+    purification: 50,
+    isFanOn: true,
+    isPurifying: true,
+    isVentilating: false,
+    filterEfficiency: 95,
+    emergency: false,
+    startTime: new Date(),
+    degradationRate: 0.2,
+    lastPurificationTime: new Date(),
+    continuousPollutionTime: 0,
+    systemImpact: -15,
+    pollutionLevel: 'low',
+    healthLevel: 92,
+    maxAlerts: 10
+};
+
+let sensorData = {
+    pm25: 35,
+    co2: 480,
+    voc: 0.8,
+    temperature: 24,
+    humidity: 45,
+    aqi: 78
+};
+
+let sensorHistory = {
+    timestamps: [],
+    pm25: [],
+    co2: [],
+    voc: [],
+    temperature: [],
+    aqi: [],
+    healthLevel: []
+};
+
+let charts = {};
+let alertList = [];
+let simulationInterval;
+let chartHours = 1;
+let isSimulating = true;
+let degradationTimer = 0;
+let showSliderAlerts = false; // متغير للتحكم في إظهار إشعارات المنزلقات
+
+// ==================== تهيئة النظام ====================
+document.addEventListener('DOMContentLoaded', function() {
+    initSystem();
+    initCharts();
+    initEventListeners();
+    startSimulation();
+    updateDisplay();
+    loadSampleAlerts();
+    setInterval(updateTime, 1000);
+    setInterval(updateSystemStatus, 5000);
+    setInterval(updateDegradationTimer, 1000);
+});
+
+function initSystem() {
+    const now = Date.now();
+    for (let i = 0; i < 60; i++) {
+        const time = new Date(now - (60 - i) * 60000);
+        sensorHistory.timestamps.push(time);
+        sensorHistory.pm25.push(30 + Math.random() * 20);
+        sensorHistory.co2.push(450 + Math.random() * 100);
+        sensorHistory.voc.push(0.5 + Math.random() * 0.6);
+        sensorHistory.temperature.push(22 + Math.random() * 4);
+        sensorHistory.aqi.push(70 + Math.random() * 20);
+        sensorHistory.healthLevel.push(85 + Math.random() * 15);
+    }
+}
+
+function initCharts() {
+    const ctx = document.getElementById('airQualityChart').getContext('2d');
+    
+    charts.main = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: sensorHistory.timestamps.map(t => t.toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'})),
+            datasets: [
+                {
+                    label: 'PM2.5',
+                    data: sensorHistory.pm25,
+                    borderColor: '#1a5fb4',
+                    backgroundColor: 'rgba(26, 95, 180, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
+                },
+                {
+                    label: 'ثاني أكسيد الكربون',
+                    data: sensorHistory.co2.map(v => v / 5), // تقسيم القيمة للعرض المناسب
+                    borderColor: '#c01c28',
+                    backgroundColor: 'rgba(192, 28, 40, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'مستوى الصحة',
+                    data: sensorHistory.healthLevel,
+                    borderColor: '#26a269',
+                    backgroundColor: 'rgba(38, 162, 105, 0.05)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true,
+                    labels: {
+                        font: {
+                            family: 'Segoe UI, Noto Sans Arabic',
+                            size: 12,
+                            weight: '600'
+                        },
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1e1e1e',
+                    bodyColor: '#1e1e1e',
+                    borderColor: '#e0e0e0',
+                    borderWidth: 1,
+                    cornerRadius: 10,
+                    padding: 15,
+                    rtl: true,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.dataset.label === 'PM2.5') {
+                                label += context.parsed.y.toFixed(1) + ' ميكروجرام/م³';
+                            } else if (context.dataset.label === 'ثاني أكسيد الكربون') {
+                                label += (context.parsed.y * 5).toFixed(0) + ' جزء في المليون';
+                            } else if (context.dataset.label === 'مستوى الصحة') {
+                                label += context.parsed.y.toFixed(0) + '%';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        font: {
+                            family: 'Segoe UI, Noto Sans Arabic',
+                            size: 11
+                        },
+                        maxRotation: 0,
+                        callback: function(value, index, values) {
+                            if (index % 5 === 0) {
+                                return this.getLabelForValue(value);
+                            }
+                            return '';
+                        }
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'PM2.5 / الصحة %',
+                        font: {
+                            family: 'Segoe UI, Noto Sans Arabic',
+                            size: 12
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            family: 'Segoe UI, Noto Sans Arabic',
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 200
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'ثاني أكسيد الكربون (÷5)',
+                        font: {
+                            family: 'Segoe UI, Noto Sans Arabic',
+                            size: 12
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            family: 'Segoe UI, Noto Sans Arabic',
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            },
+            elements: {
+                line: {
+                    tension: 0.4
+                }
+            }
+        }
+    });
+}
+
+// ==================== محاكاة النظام ====================
+function startSimulation() {
+    simulationInterval = setInterval(() => {
+        simulateSensorReadings();
+        simulateSystemChanges();
+        simulateDegradation();
+        updateDisplay();
+        updateChart();
+        checkForAlerts();
+        updateAirPollutionEffect();
+    }, 2000);
+}
+
+function simulateSensorReadings() {
+    const baseChange = (Math.random() - 0.5) * 2;
+    
+    let improvementFactor = 0;
+    
+    if (systemState.isFanOn) improvementFactor -= 0.15 * (systemState.fanSpeed / 100);
+    if (systemState.isPurifying) improvementFactor -= 0.25 * (systemState.purification / 100);
+    if (systemState.isVentilating) improvementFactor -= 0.20;
+    
+    if (systemState.mode === 'turbo') improvementFactor -= 0.3;
+    if (systemState.mode === 'sleep') improvementFactor += 0.1;
+    
+    const filterEffect = systemState.filterEfficiency / 100;
+    improvementFactor *= filterEffect;
+    
+    systemState.systemImpact = improvementFactor * 100;
+    
+    const timeSinceLastPurification = (new Date() - systemState.lastPurificationTime) / 60000;
+    
+    let degradationEffect = 0;
+    if (!systemState.isFanOn && !systemState.isPurifying && !systemState.isVentilating) {
+        degradationEffect = timeSinceLastPurification * systemState.degradationRate * 0.5;
+    } else if (systemState.mode === 'sleep') {
+        degradationEffect = timeSinceLastPurification * systemState.degradationRate * 0.1;
+    }
+    
+    sensorData.pm25 = Math.max(5, Math.min(300, 
+        sensorData.pm25 + baseChange * 3 + improvementFactor * 8 + degradationEffect * 10));
+    
+    sensorData.co2 = Math.max(350, Math.min(2000,
+        sensorData.co2 + baseChange * 15 + improvementFactor * 20 + degradationEffect * 30));
+    
+    sensorData.voc = Math.max(0.1, Math.min(5.0,
+        sensorData.voc + baseChange * 0.05 + improvementFactor * 0.1 + degradationEffect * 0.2));
+    
+    sensorData.temperature = 22 + Math.sin(Date.now() / 1000000) * 3 + Math.random() * 2;
+    sensorData.humidity = 40 + Math.sin(Date.now() / 2000000) * 10 + Math.random() * 5;
+    
+    sensorData.aqi = calculateAQI(sensorData.pm25, sensorData.co2, sensorData.voc);
+    
+    if (sensorData.aqi < 60 || sensorData.pm25 > 50 || sensorData.co2 > 800) {
+        systemState.continuousPollutionTime += 2;
+    } else {
+        systemState.continuousPollutionTime = Math.max(0, systemState.continuousPollutionTime - 1);
+    }
+    
+    updateHealthLevel();
+}
+
+function simulateDegradation() {
+    let newDegradationRate = 0.2;
+    
+    if (!systemState.isFanOn && !systemState.isPurifying) {
+        newDegradationRate += 0.5;
+        if (!systemState.isVentilating) {
+            newDegradationRate += 0.3;
+        }
+    }
+    
+    if (systemState.mode === 'sleep') {
+        newDegradationRate += 0.1;
+    } else if (systemState.mode === 'turbo') {
+        newDegradationRate = 0;
+    }
+    
+    if (systemState.filterEfficiency < 70) {
+        newDegradationRate += (100 - systemState.filterEfficiency) * 0.01;
+    }
+    
+    systemState.degradationRate = Math.max(0, newDegradationRate);
+    
+    if (!systemState.isFanOn && !systemState.isPurifying) {
+        degradationTimer += 2;
+    } else {
+        degradationTimer = Math.max(0, degradationTimer - 1);
+    }
+}
+
+function simulateSystemChanges() {
+    if (systemState.isFanOn || systemState.isPurifying) {
+        if (Math.random() < 0.03) {
+            systemState.filterEfficiency = Math.max(30, systemState.filterEfficiency - 0.1);
+        }
+    }
+    
+    if (sensorData.aqi >= 80) systemState.pollutionLevel = 'low';
+    else if (sensorData.aqi >= 60) systemState.pollutionLevel = 'medium';
+    else if (sensorData.aqi >= 40) systemState.pollutionLevel = 'high';
+    else systemState.pollutionLevel = 'critical';
+}
+
+function updateHealthLevel() {
+    let health = 100;
+    
+    if (sensorData.pm25 > 150) health -= 40;
+    else if (sensorData.pm25 > 100) health -= 30;
+    else if (sensorData.pm25 > 70) health -= 20;
+    else if (sensorData.pm25 > 50) health -= 15;
+    else if (sensorData.pm25 > 35) health -= 10;
+    else if (sensorData.pm25 > 25) health -= 5;
+    
+    if (sensorData.co2 > 1200) health -= 30;
+    else if (sensorData.co2 > 1000) health -= 20;
+    else if (sensorData.co2 > 800) health -= 15;
+    else if (sensorData.co2 > 600) health -= 10;
+    else if (sensorData.co2 > 500) health -= 5;
+    
+    if (sensorData.voc > 2.0) health -= 25;
+    else if (sensorData.voc > 1.5) health -= 15;
+    else if (sensorData.voc > 1.0) health -= 10;
+    else if (sensorData.voc > 0.5) health -= 5;
+    
+    if (systemState.isPurifying) health += 10 * (systemState.purification / 100);
+    if (systemState.isVentilating) health += 8;
+    if (systemState.isFanOn) health += 5 * (systemState.fanSpeed / 100);
+    
+    health += (systemState.filterEfficiency - 50) * 0.2;
+    
+    systemState.healthLevel = Math.max(0, Math.min(100, Math.round(health)));
+}
+
+function calculateAQI(pm25, co2, voc) {
+    let score = 100;
+    
+    if (pm25 > 150) score -= 60;
+    else if (pm25 > 100) score -= 40;
+    else if (pm25 > 70) score -= 25;
+    else if (pm25 > 50) score -= 15;
+    else if (pm25 > 35) score -= 10;
+    else if (pm25 > 25) score -= 5;
+    
+    if (co2 > 1200) score -= 40;
+    else if (co2 > 1000) score -= 25;
+    else if (co2 > 800) score -= 15;
+    else if (co2 > 600) score -= 10;
+    else if (co2 > 500) score -= 5;
+    
+    if (voc > 2.0) score -= 30;
+    else if (voc > 1.5) score -= 20;
+    else if (voc > 1.0) score -= 10;
+    else if (voc > 0.5) score -= 5;
+    
+    if (systemState.isPurifying) score += 15 * (systemState.purification / 100);
+    if (systemState.isVentilating) score += 10;
+    if (systemState.isFanOn) score += 8 * (systemState.fanSpeed / 100);
+    
+    score += (systemState.filterEfficiency - 50) * 0.1;
+    
+    if (degradationTimer > 300) {
+        score -= (degradationTimer - 300) * 0.01;
+    }
+    
+    return Math.max(0, Math.min(200, Math.round(score)));
+}
+
+// ==================== تحديث الواجهة ====================
+function updateDisplay() {
+    document.getElementById('pm25Value').textContent = sensorData.pm25.toFixed(1);
+    document.getElementById('co2Value').textContent = Math.round(sensorData.co2);
+    document.getElementById('vocValue').textContent = sensorData.voc.toFixed(1);
+    document.getElementById('tempValue').textContent = sensorData.temperature.toFixed(1);
+    
+    updateSensorStatus('pm25', sensorData.pm25);
+    updateSensorStatus('co2', sensorData.co2);
+    updateSensorStatus('voc', sensorData.voc);
+    updateSensorStatus('temp', sensorData.temperature);
+    updateAQIStatus(sensorData.aqi);
+    
+    document.getElementById('healthValue').textContent = systemState.healthLevel + '%';
+    document.getElementById('healthBar').style.width = systemState.healthLevel + '%';
+    document.getElementById('healthIndicatorValue').textContent = systemState.healthLevel + '%';
+    document.getElementById('healthIndicator').style.width = systemState.healthLevel + '%';
+    document.getElementById('healthLevelSidebar').textContent = systemState.healthLevel + '%';
+    
+    let healthStatus = '';
+    let healthColor = '';
+    if (systemState.healthLevel >= 90) {
+        healthStatus = 'صحة ممتازة';
+        healthColor = 'var(--success)';
+    } else if (systemState.healthLevel >= 75) {
+        healthStatus = 'صحة جيدة';
+        healthColor = 'var(--success)';
+    } else if (systemState.healthLevel >= 60) {
+        healthStatus = 'صحة متوسطة';
+        healthColor = 'var(--warning)';
+    } else if (systemState.healthLevel >= 40) {
+        healthStatus = 'صحة ضعيفة';
+        healthColor = 'var(--warning)';
+    } else {
+        healthStatus = 'صحة خطرة';
+        healthColor = 'var(--danger)';
+    }
+    document.getElementById('healthStatus').textContent = healthStatus;
+    document.getElementById('healthStatus').style.color = healthColor;
+    document.getElementById('healthValue').style.color = healthColor;
+    
+    document.getElementById('filterEfficiency').textContent = systemState.filterEfficiency.toFixed(1) + '%';
+    document.getElementById('degradationRate').textContent = systemState.degradationRate.toFixed(1) + '%';
+    
+    document.getElementById('degradationStat').textContent = systemState.degradationRate.toFixed(1) + '%';
+    document.getElementById('dangerLevel').textContent = getDangerLevelText();
+    document.getElementById('requiredPurification').textContent = calculateRequiredPurification() + '%';
+    
+    const impactValue = systemState.systemImpact;
+    const impactText = impactValue < 0 ? `إيجابي (${Math.abs(impactValue).toFixed(1)}% تحسن)` : `سلبي (+${impactValue.toFixed(1)}% تدهور)`;
+    const impactColor = impactValue < 0 ? 'var(--success)' : 'var(--danger)';
+    
+    document.getElementById('systemImpact').textContent = impactText;
+    document.getElementById('systemImpact').style.color = impactColor;
+    document.getElementById('systemImpactBar').style.width = Math.max(0, Math.min(100, 50 - impactValue)) + '%';
+    document.getElementById('systemImpactBar').style.background = impactValue < 0 ? 
+        'linear-gradient(to right, var(--success), var(--secondary))' : 
+        'linear-gradient(to right, var(--danger), #e5534b)';
+    
+    document.getElementById('filterValue').textContent = systemState.filterEfficiency.toFixed(1) + '%';
+    document.getElementById('filterIndicator').style.width = systemState.filterEfficiency + '%';
+    document.getElementById('powerValue').textContent = calculatePowerConsumption() + ' واط';
+    document.getElementById('powerIndicator').style.width = (calculatePowerConsumption() / 500 * 100) + '%';
+    
+    updateButtons();
+}
+
+function updateButtons() {
+    const fanOnBtn = document.getElementById('fanOnBtn');
+    const fanOffBtn = document.getElementById('fanOffBtn');
+    const purifyBtn = document.getElementById('purifyBtn');
+    const ventilateBtn = document.getElementById('ventilateBtn');
+    
+    fanOnBtn.disabled = systemState.isFanOn;
+    fanOffBtn.disabled = !systemState.isFanOn;
+    
+    purifyBtn.innerHTML = systemState.isPurifying ? 
+        '<i class="fas fa-stop"></i><span>إيقاف التنقية</span>' : 
+        '<i class="fas fa-wind"></i><span>بدء التنقية</span>';
+    
+    ventilateBtn.innerHTML = systemState.isVentilating ? 
+        '<i class="fas fa-window-close"></i><span>إيقاف التهوية</span>' : 
+        '<i class="fas fa-window-maximize"></i><span>التهوية</span>';
+    
+    if (systemState.isPurifying) {
+        purifyBtn.className = 'btn btn-danger';
+    } else {
+        purifyBtn.className = 'btn btn-secondary';
+    }
+}
+
+// ==================== وظائف التحكم ====================
+function initEventListeners() {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = this.dataset.page;
+            showPage(page);
+            
+            document.querySelectorAll('.nav-link').forEach(item => {
+                item.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+    
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            systemState.mode = this.dataset.mode;
+            applyModeSettings();
+        });
+    });
+    
+    // أزرار التحكم - إصلاح المشكلة
+    document.getElementById('fanOnBtn').addEventListener('click', function() {
+        systemState.isFanOn = true;
+        systemState.lastPurificationTime = new Date();
+        updateDisplay();
+        addAlert('success', '✅ تم تشغيل مراوح التنقية');
+    });
+    
+    document.getElementById('fanOffBtn').addEventListener('click', function() {
+        systemState.isFanOn = false;
+        updateDisplay();
+        addAlert('warning', '⚠️ تم إيقاف مراوح التنقية');
+        
+        if (!systemState.isPurifying && !systemState.isVentilating) {
+            setTimeout(() => {
+                addAlert('danger', '🚨 جميع أنظمة التنقية متوقفة!');
+            }, 2000);
+        }
+    });
+    
+    document.getElementById('purifyBtn').addEventListener('click', function() {
+        systemState.isPurifying = !systemState.isPurifying;
+        
+        if (systemState.isPurifying) {
+            systemState.lastPurificationTime = new Date();
+            addAlert('success', '✅ تم بدء عملية التنقية');
+        } else {
+            addAlert('warning', '⚠️ تم إيقاف عملية التنقية');
+            
+            if (!systemState.isFanOn) {
+                setTimeout(() => {
+                    addAlert('danger', '🚨 النظام متوقف بالكامل!');
+                }, 1500);
+            }
+        }
+        
+        updateDisplay();
+    });
+    
+    document.getElementById('ventilateBtn').addEventListener('click', function() {
+        systemState.isVentilating = !systemState.isVentilating;
+        updateDisplay();
+        
+        if (systemState.isVentilating) {
+            addAlert('success', '✅ تم تفعيل التهوية');
+        } else {
+            addAlert('info', '📢 تم إيقاف التهوية');
+        }
+    });
+    
+    const fanSlider = document.getElementById('fanSpeedSlider');
+    const purifySlider = document.getElementById('purificationSlider');
+    
+    let fanSliderTimeout;
+    fanSlider.addEventListener('input', function() {
+        systemState.fanSpeed = parseInt(this.value);
+        document.getElementById('fanSpeedValue').textContent = systemState.fanSpeed + '%';
+        
+        clearTimeout(fanSliderTimeout);
+        fanSliderTimeout = setTimeout(() => {
+            if (showSliderAlerts && systemState.isFanOn) {
+                addAlert('info', `تم ضبط سرعة المراوح إلى ${systemState.fanSpeed}%`);
+            }
+        }, 500);
+    });
+    
+    let purifySliderTimeout;
+    purifySlider.addEventListener('input', function() {
+        systemState.purification = parseInt(this.value);
+        const levels = ['ضعيفة', 'متوسطة', 'قوية', 'عالية'];
+        const level = levels[Math.floor(systemState.purification / 25)];
+        document.getElementById('purificationValue').textContent = level;
+        
+        clearTimeout(purifySliderTimeout);
+        purifySliderTimeout = setTimeout(() => {
+            if (showSliderAlerts && systemState.isPurifying) {
+                addAlert('info', `تم ضبط شدة التنقية إلى ${level}`);
+            }
+        }, 500);
+    });
+    
+    document.querySelectorAll('.history-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.history-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            chartHours = parseInt(this.dataset.hours);
+            updateChartData();
+        });
+    });
+}
+
+function applyModeSettings() {
+    switch(systemState.mode) {
+        case 'auto':
+            systemState.fanSpeed = 70;
+            systemState.purification = 75;
+            systemState.isFanOn = true;
+            systemState.isPurifying = true;
+            systemState.isVentilating = false;
+            addAlert('info', '🔄 تم تفعيل الوضع التلقائي');
+            break;
+            
+        case 'manual':
+            addAlert('info', '👆 تم تفعيل الوضع اليدوي');
+            break;
+            
+        case 'sleep':
+            systemState.fanSpeed = 30;
+            systemState.purification = 40;
+            systemState.isFanOn = true;
+            systemState.isPurifying = true;
+            systemState.isVentilating = false;
+            addAlert('info', '😴 تم تفعيل وضع النوم');
+            break;
+            
+        case 'turbo':
+            systemState.fanSpeed = 100;
+            systemState.purification = 95;
+            systemState.isFanOn = true;
+            systemState.isPurifying = true;
+            systemState.isVentilating = true;
+            addAlert('info', '⚡ تم تفعيل وضع التيربو');
+            break;
+    }
+    
+    document.getElementById('fanSpeedSlider').value = systemState.fanSpeed;
+    document.getElementById('purificationSlider').value = systemState.purification;
+    document.getElementById('fanSpeedValue').textContent = systemState.fanSpeed + '%';
+    
+    const levels = ['ضعيفة', 'متوسطة', 'قوية', 'عالية'];
+    const level = levels[Math.floor(systemState.purification / 25)];
+    document.getElementById('purificationValue').textContent = level;
+    
+    updateDisplay();
+}
+
+// ==================== الرسوم البيانية ====================
+function updateChart() {
+    const now = new Date();
+    
+    sensorHistory.timestamps.push(now);
+    sensorHistory.pm25.push(sensorData.pm25);
+    sensorHistory.co2.push(sensorData.co2);
+    sensorHistory.voc.push(sensorData.voc);
+    sensorHistory.temperature.push(sensorData.temperature);
+    sensorHistory.aqi.push(sensorData.aqi);
+    sensorHistory.healthLevel.push(systemState.healthLevel);
+    
+    const maxDataPoints = 60 * chartHours;
+    if (sensorHistory.timestamps.length > maxDataPoints) {
+        sensorHistory.timestamps.shift();
+        sensorHistory.pm25.shift();
+        sensorHistory.co2.shift();
+        sensorHistory.voc.shift();
+        sensorHistory.temperature.shift();
+        sensorHistory.aqi.shift();
+        sensorHistory.healthLevel.shift();
+    }
+    
+    if (charts.main) {
+        charts.main.data.labels = sensorHistory.timestamps.map(t => 
+            t.toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'})
+        );
+        charts.main.data.datasets[0].data = sensorHistory.pm25;
+        charts.main.data.datasets[1].data = sensorHistory.co2.map(v => v / 5);
+        charts.main.data.datasets[2].data = sensorHistory.healthLevel;
+        charts.main.update('none');
+    }
+}
+
+function updateChartData() {
+    updateChart();
+}
+
+// ==================== نظام التنبيهات ====================
+function checkForAlerts() {
+    // تنبيهات تلوث الهواء
+    if (sensorData.pm25 > 150 && !systemState.emergency) {
+        showEmergencyAlert('🚨 تحذير: مستوى PM2.5 خطير! يرجى تفعيل وضع التيربو فوراً.');
+        addAlert('danger', `🚨 مستوى PM2.5 خطير: ${sensorData.pm25.toFixed(1)} ميكروجرام/م³`);
+        systemState.emergency = true;
+    }
+    
+    if (sensorData.co2 > 1200 && !systemState.emergency) {
+        showEmergencyAlert('🚨 تحذير: مستوى ثاني أكسيد الكربون خطير! يرجى تهوية المكان فوراً.');
+        addAlert('danger', `🚨 مستوى CO₂ خطير: ${Math.round(sensorData.co2)} جزء في المليون`);
+        systemState.emergency = true;
+    }
+    
+    if (systemState.healthLevel < 40 && !systemState.emergency) {
+        showEmergencyAlert('🚨 تحذير: مستوى الصحة خطير! يرجى تفعيل جميع أنظمة التنقية.');
+        addAlert('danger', `🚨 مستوى الصحة خطير: ${systemState.healthLevel}%`);
+        systemState.emergency = true;
+    }
+    
+    // تنبيهات النظام المتوقف
+    if (!systemState.isFanOn && !systemState.isPurifying) {
+        if (degradationTimer > 180) {
+            addAlert('warning', '⚠️ النظام متوقف - جودة الهواء تتدهور');
+        }
+        
+        if (degradationTimer > 300) {
+            addAlert('danger', '🚨 النظام متوقف لفترة طويلة - خطر على الصحة!');
+        }
+    }
+    
+    // تنبيهات كفاءة المرشح
+    if (systemState.filterEfficiency < 50) {
+        addAlert('warning', `⚠️ كفاءة المرشح منخفضة: ${systemState.filterEfficiency.toFixed(1)}% - يوصى بالاستبدال`);
+    }
+    
+    // تنبيهات التلوث المستمر
+    if (systemState.continuousPollutionTime > 600) {
+        addAlert('danger', '🚨 تلوث مستمر لفترة طويلة - خطر على الصحة!');
+    }
+    
+    // تنبيهات الصحة الجيدة
+    if (systemState.healthLevel > 90 && Math.random() < 0.1) {
+        addAlert('success', '✅ صحة ممتازة! جودة الهواء في أفضل حالاتها');
+    }
+}
+
+function addAlert(type, message) {
+    const alertTypes = {
+        'danger': { icon: 'exclamation-triangle', class: '' },
+        'warning': { icon: 'exclamation-circle', class: 'alert-warning' },
+        'success': { icon: 'check-circle', class: 'alert-good' },
+        'info': { icon: 'info-circle', class: '' }
+    };
+    
+    const alert = {
+        id: Date.now(),
+        type: type,
+        message: message,
+        time: new Date(),
+        icon: alertTypes[type].icon,
+        alertClass: alertTypes[type].class
+    };
+    
+    alertList.unshift(alert);
+    
+    // التحكم في عدد الإشعارات (يحذف قديمة عند تجاوز الحد)
+    if (alertList.length > systemState.maxAlerts) {
+        // احتفظ بأحدث 7 إشعارات فقط
+        alertList.splice(7);
+    }
+    
+    updateAlertsList();
+    
+    // إظهار إشعار منبثق فقط للتنبيهات المهمة
+    if (type === 'danger' || (type === 'warning' && message.includes('🚨'))) {
+        showNotification(alert);
+    }
+}
+
+function updateAlertsList() {
+    const alertsList = document.getElementById('alertsList');
+    alertsList.innerHTML = '';
+    
+    alertList.forEach(alert => {
+        const alertElement = document.createElement('div');
+        alertElement.className = `alert-item ${alert.alertClass}`;
+        alertElement.innerHTML = `
+            <i class="fas fa-${alert.icon} alert-icon"></i>
+            <div>
+                <div>${alert.message}</div>
+                <div class="alert-time">${alert.time.toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit'})}</div>
+            </div>
+        `;
+        alertsList.appendChild(alertElement);
+    });
+}
+
+// ==================== وظائف مساعدة ====================
+function calculatePowerConsumption() {
+    let power = 50;
+    if (systemState.isFanOn) power += systemState.fanSpeed * 2;
+    if (systemState.isPurifying) power += systemState.purification * 1.5;
+    return Math.round(power);
+}
+
+function calculateRequiredPurification() {
+    let required = 0;
+    
+    if (sensorData.aqi < 30) required = 95;
+    else if (sensorData.aqi < 50) required = 85;
+    else if (sensorData.aqi < 70) required = 70;
+    else if (sensorData.aqi < 85) required = 50;
+    else required = 30;
+    
+    return Math.round(required);
+}
+
+function getDangerLevelText() {
+    if (systemState.healthLevel >= 75) return 'منخفض';
+    else if (systemState.healthLevel >= 50) return 'متوسط';
+    else if (systemState.healthLevel >= 30) return 'مرتفع';
+    else return 'خطير';
+}
+
+function updateAirPollutionEffect() {
+    const effect = document.getElementById('airPollutionEffect');
+    let opacity = 0;
+    
+    if (sensorData.aqi < 30) {
+        opacity = 0.15;
+        effect.style.background = 'rgba(192, 28, 40, 0.15)';
+    } else if (sensorData.aqi < 50) {
+        opacity = 0.08;
+        effect.style.background = 'rgba(245, 166, 35, 0.08)';
+    } else if (sensorData.aqi < 70) {
+        opacity = 0.03;
+        effect.style.background = 'rgba(255, 243, 205, 0.03)';
+    }
+    
+    if (!systemState.isFanOn && !systemState.isPurifying) {
+        opacity += 0.05;
+    }
+    
+    if (opacity > 0) {
+        effect.classList.add('show');
+        effect.style.opacity = opacity;
+    } else {
+        effect.classList.remove('show');
+    }
+}
+
+function updateDegradationTimer() {
+    degradationTimer++;
+}
+
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('ar-EG', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+    document.getElementById('currentTime').textContent = timeString;
+    
+    // حساب وقت التشغيل بشكل صحيح
+    const uptime = Math.floor((now - systemState.startTime) / 1000);
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = uptime % 60;
+    
+    document.getElementById('uptime').textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function updateSystemStatus() {
+    let overallStatus = 'جيدة';
+    if (systemState.healthLevel < 60) overallStatus = 'متوسطة';
+    if (systemState.healthLevel < 40) overallStatus = 'سيئة';
+    if (systemState.emergency) overallStatus = 'خطيرة';
+    
+    document.getElementById('systemOverallStatus').textContent = overallStatus;
+    document.getElementById('systemOverallStatus').style.color = 
+        overallStatus === 'جيدة' ? 'var(--success)' : 
+        overallStatus === 'متوسطة' ? 'var(--warning)' : 
+        overallStatus === 'سيئة' ? 'var(--danger)' : '#721c24';
+}
+
+function showPage(pageName) {
+    document.querySelectorAll('.dashboard').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    const contentId = pageName + 'Content';
+    const content = document.getElementById(contentId);
+    
+    if (content) {
+        content.style.display = 'grid';
+        document.getElementById('pageTitle').textContent = getPageTitle(pageName);
+        loadPageContent(pageName);
+    } else {
+        document.getElementById('dashboardContent').style.display = 'grid';
+        document.getElementById('pageTitle').textContent = 'لوحة التحكم الرئيسية';
+    }
+}
+
+function getPageTitle(pageName) {
+    const titles = {
+        'dashboard': 'لوحة التحكم الرئيسية',
+        'analytics': 'التحليلات والإحصائيات'
+    };
+    return titles[pageName] || pageName;
+}
+
+function loadPageContent(pageName) {
+    if (pageName === 'analytics') {
+        const content = document.getElementById('analyticsContent');
+        content.innerHTML = `
+            <div class="card" style="grid-column: span 2;">
+                <div class="card-header">
+                    <h3 class="card-title">تحليل أداء النظام</h3>
+                    <i class="fas fa-chart-bar card-icon"></i>
+                </div>
+                <div class="chart-container">
+                    <canvas id="analyticsChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">تقرير الكفاءة</h3>
+                    <i class="fas fa-tachometer-alt card-icon"></i>
+                </div>
+                <div class="efficiency-report">
+                    <div class="efficiency-item">
+                        <span>كفاءة المرشح:</span>
+                        <span style="font-weight: 600; color: ${systemState.filterEfficiency > 70 ? 'var(--success)' : 'var(--warning)'}">
+                            ${systemState.filterEfficiency.toFixed(1)}%
+                        </span>
+                    </div>
+                    <div class="efficiency-item">
+                        <span>كفاءة الطاقة:</span>
+                        <span style="font-weight: 600; color: var(--success)">92%</span>
+                    </div>
+                    <div class="efficiency-item">
+                        <span>كفاءة التنقية:</span>
+                        <span style="font-weight: 600; color: var(--success)">88%</span>
+                    </div>
+                    <div class="efficiency-item">
+                        <span>متوسط وقت التشغيل:</span>
+                        <span style="font-weight: 600;" id="avgUptime">00:00:00</span>
+                    </div>
+                    <div class="efficiency-item">
+                        <span>عدد دورات التنقية:</span>
+                        <span style="font-weight: 600;" id="purificationCycles">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">نصائح للتحسين</h3>
+                    <i class="fas fa-lightbulb card-icon"></i>
+                </div>
+                <div style="padding: 20px;">
+                    <ul class="tips-list">
+                        <li class="tip-item ${systemState.isFanOn && systemState.isPurifying ? 'tip-good' : 'tip-warning'}">
+                            <i class="fas ${systemState.isFanOn && systemState.isPurifying ? 'fa-check-circle' : 'fa-exclamation-circle'} tip-icon"></i>
+                            ${systemState.isFanOn && systemState.isPurifying ? 
+                                'النظام يعمل بكفاءة - استمرار الوضع الحالي' : 
+                                'تفعيل كلا النظامين (مراوح + تنقية) يحسن الكفاءة'}
+                        </li>
+                        <li class="tip-item ${systemState.filterEfficiency > 70 ? 'tip-good' : 'tip-warning'}">
+                            <i class="fas ${systemState.filterEfficiency > 70 ? 'fa-check-circle' : 'fa-exclamation-triangle'} tip-icon"></i>
+                            ${systemState.filterEfficiency > 70 ? 
+                                'كفاءة المرشح جيدة' : 
+                                'كفاءة المرشح منخفضة - يوصى بالفحص'}
+                        </li>
+                        <li class="tip-item ${sensorData.aqi > 70 ? 'tip-good' : 'tip-danger'}">
+                            <i class="fas ${sensorData.aqi > 70 ? 'fa-check-circle' : 'fa-exclamation-triangle'} tip-icon"></i>
+                            ${sensorData.aqi > 70 ? 
+                                'جودة الهواء جيدة' : 
+                                'جودة الهواء منخفضة - يوصى بتفعيل وضع التيربو'}
+                        </li>
+                        <li class="tip-item ${systemState.healthLevel > 75 ? 'tip-good' : 'tip-warning'}">
+                            <i class="fas ${systemState.healthLevel > 75 ? 'fa-check-circle' : 'fa-heartbeat'} tip-icon"></i>
+                            ${systemState.healthLevel > 75 ? 
+                                'مستوى الصحة جيد' : 
+                                'تحسين التهوية يزيد مستوى الصحة'}
+                        </li>
+                        <li class="tip-item tip-good">
+                            <i class="fas fa-leaf tip-icon"></i>
+                            تهوية المكان 10 دقائق يومياً تحسن جودة الهواء
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        // تحديث البيانات في صفحة التحليلات
+        document.getElementById('avgUptime').textContent = document.getElementById('uptime').textContent;
+        document.getElementById('purificationCycles').textContent = Math.floor((new Date() - systemState.startTime) / 3600000) * 2;
+        
+        setTimeout(createAnalyticsChart, 100);
+    }
+}
+
+function createAnalyticsChart() {
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    
+    if (charts.analytics) {
+        charts.analytics.destroy();
+    }
+    
+    const hours = ['8:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+    
+    charts.analytics = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: hours,
+            datasets: [
+                {
+                    label: 'PM2.5 متوسط',
+                    data: [45, 52, 65, 70, 68, 72, 58, 42],
+                    backgroundColor: '#1a5fb4',
+                    borderColor: '#1a5fb4',
+                    borderWidth: 1
+                },
+                {
+                    label: 'CO₂ متوسط',
+                    data: [480, 520, 600, 650, 620, 580, 530, 490],
+                    backgroundColor: '#c01c28',
+                    borderColor: '#c01c28',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    rtl: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function loadSampleAlerts() {
+    const sampleAlerts = [
+        { type: 'info', message: '🚀 تم تشغيل النظام بنجاح' },
+        { type: 'success', message: '✅ جودة الهواء ضمن المستويات الآمنة' },
+        { type: 'info', message: '❤️ مستوى الصحة الحالي: 92%' }
+    ];
+    
+    sampleAlerts.forEach(alert => {
+        addAlert(alert.type, alert.message);
+    });
+}
+
+function showNotification(alert) {
+    const notification = document.getElementById('notification');
+    const title = document.getElementById('notificationTitle');
+    const message = document.getElementById('notificationMessage');
+    
+    switch(alert.type) {
+        case 'danger':
+            title.textContent = '🚨 تحذير خطير';
+            notification.className = 'notification';
+            break;
+        case 'warning':
+            title.textContent = '⚠️ تنبيه';
+            notification.className = 'notification notification-warning';
+            break;
+        case 'success':
+            title.textContent = '✅ إشعار';
+            notification.className = 'notification notification-success';
+            break;
+        default:
+            title.textContent = '📢 إشعار';
+            notification.className = 'notification';
+    }
+    
+    message.textContent = alert.message;
+    
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 5000);
+}
+
+function showEmergencyAlert(message) {
+    const emergencyAlert = document.getElementById('emergencyAlert');
+    const emergencyMessage = document.getElementById('emergencyMessage');
+    
+    emergencyMessage.textContent = message;
+    emergencyAlert.style.display = 'block';
+}
+
+function dismissEmergency() {
+    document.getElementById('emergencyAlert').style.display = 'none';
+    systemState.emergency = false;
+    addAlert('info', '✅ تم إغلاق تنبيه الطوارئ');
+}
+
+function dismissNotification() {
+    document.getElementById('notification').classList.remove('show');
+}
+
+function clearAlerts() {
+    if (alertList.length > 0) {
+        alertList = [];
+        updateAlertsList();
+        addAlert('info', '🗑️ تم مسح جميع الإشعارات');
+    }
+}
+
+function updateSensorStatus(sensor, value) {
+    let status, className;
+    
+    switch(sensor) {
+        case 'pm25':
+            if (value <= 12) { status = 'ممتازة'; className = 'good'; }
+            else if (value <= 35) { status = 'جيدة'; className = 'good'; }
+            else if (value <= 55) { status = 'متوسطة'; className = 'moderate'; }
+            else if (value <= 150) { status = 'سيئة'; className = 'poor'; }
+            else { status = 'خطيرة'; className = 'hazardous'; }
+            break;
+            
+        case 'co2':
+            if (value <= 400) { status = 'ممتازة'; className = 'good'; }
+            else if (value <= 600) { status = 'جيدة'; className = 'good'; }
+            else if (value <= 1000) { status = 'متوسطة'; className = 'moderate'; }
+            else if (value <= 1500) { status = 'سيئة'; className = 'poor'; }
+            else { status = 'خطيرة'; className = 'hazardous'; }
+            break;
+            
+        case 'voc':
+            if (value <= 0.5) { status = 'منخفضة'; className = 'good'; }
+            else if (value <= 1.0) { status = 'متوسطة'; className = 'moderate'; }
+            else if (value <= 2.0) { status = 'عالية'; className = 'poor'; }
+            else { status = 'خطيرة'; className = 'hazardous'; }
+            break;
+            
+        case 'temp':
+            if (value >= 22 && value <= 26) { status = 'مثالية'; className = 'good'; }
+            else if ((value >= 20 && value < 22) || (value > 26 && value <= 28)) { status = 'مقبولة'; className = 'moderate'; }
+            else { status = 'غير مريحة'; className = 'poor'; }
+            break;
+    }
+    
+    const element = document.getElementById(sensor + 'Status');
+    if (element) {
+        element.textContent = status;
+        element.className = 'sensor-status ' + className;
+    }
+}
+
+function updateAQIStatus(aqi) {
+    let status, className;
+    
+    if (aqi >= 90) { status = 'ممتازة'; className = 'good'; }
+    else if (aqi >= 70) { status = 'جيدة'; className = 'good'; }
+    else if (aqi >= 50) { status = 'متوسطة'; className = 'moderate'; }
+    else if (aqi >= 30) { status = 'سيئة'; className = 'poor'; }
+    else { status = 'خطيرة'; className = 'hazardous'; }
+    
+    const element = document.getElementById('aqiStatus');
+    if (element) {
+        element.textContent = status;
+        element.className = 'sensor-status ' + className;
+    }
+}
+</script>
+</body>
+</html>
